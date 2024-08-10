@@ -49,19 +49,21 @@ use Ramsey\Uuid\Uuid;
 /**
  * Handler used for the pre-spawn phase of the session.
  */
-class PreSpawnPacketHandler extends ChunkRequestPacketHandler{
+class PreSpawnPacketHandler extends ChunkRequestPacketHandler
+{
 	public function __construct(
 		private Server $server,
 		private Player $player,
 		NetworkSession $session,
 		private InventoryManager $inventoryManager
-	){
+	) {
 		parent::__construct($session);
 	}
 
-	public function setUp() : void{
+	public function setUp(): void
+	{
 		Timings::$playerNetworkSendPreSpawnGameData->startTiming();
-		try{
+		try {
 			$protocolId = $this->session->getProtocolId();
 			$location = $this->player->getLocation();
 			$world = $location->getWorld();
@@ -104,7 +106,7 @@ class PreSpawnPacketHandler extends ChunkRequestPacketHandler{
 				0,
 				"",
 				true,
-				"NetherGames v5.0",
+				"PoryonStudios v5.0",
 				Uuid::fromString(Uuid::NIL),
 				false,
 				false,
@@ -131,7 +133,7 @@ class PreSpawnPacketHandler extends ChunkRequestPacketHandler{
 			$this->session->syncAdventureSettings();
 
 			$this->session->getLogger()->debug("Sending effects");
-			foreach($this->player->getEffects()->all() as $effect){
+			foreach ($this->player->getEffects()->all() as $effect) {
 				$this->session->getEntityEventBroadcaster()->onEntityEffectAdded([$this->session], $this->player, $effect, false);
 			}
 
@@ -150,18 +152,20 @@ class PreSpawnPacketHandler extends ChunkRequestPacketHandler{
 
 			$this->session->getLogger()->debug("Sending player list");
 			$this->session->syncPlayerList($this->server->getOnlinePlayers());
-		}finally{
+		} finally {
 			Timings::$playerNetworkSendPreSpawnGameData->stopTiming();
 		}
 	}
 
-	public function handleRequestChunkRadius(RequestChunkRadiusPacket $packet) : bool{
+	public function handleRequestChunkRadius(RequestChunkRadiusPacket $packet): bool
+	{
 		$this->player->setViewDistance($packet->radius);
 
 		return true;
 	}
 
-	public function handlePlayerAuthInput(PlayerAuthInputPacket $packet) : bool{
+	public function handlePlayerAuthInput(PlayerAuthInputPacket $packet): bool
+	{
 		//the client will send this every tick once we start sending chunks, but we don't handle it in this stage
 		//this is very spammy so we filter it out
 		return true;
